@@ -1,36 +1,115 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Where is This? - Next.js
 
-## Getting Started
+Film çekim lokasyonlarını bulmak için Next.js ile geliştirilmiş bir web uygulaması.
 
-First, run the development server:
+## Özellikler
 
+- 🎬 Popüler filmleri görüntüleme
+- 🔍 Film arama
+- 🗺️ Film çekim lokasyonlarını haritada görüntüleme
+- 💾 MongoDB ile lokasyon cache'leme
+- 🎨 Modern ve responsive tasarım
+
+## Teknolojiler
+
+- **Next.js 16** (App Router)
+- **React 19**
+- **Redux Toolkit** - State management
+- **MongoDB** - Veritabanı
+- **Leaflet** - Harita görselleştirme
+- **Bootstrap** - UI framework
+- **TMDB API** - Film verileri
+- **IMDB API** - Çekim lokasyonları
+- **Geoapify API** - Geocoding
+
+## Kurulum
+
+1. Projeyi klonlayın:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repo-url>
+cd where-is-this-nextjs
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Bağımlılıkları yükleyin:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. `.env.local` dosyası oluşturun:
+```bash
+cp .env.local.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. `.env.local` dosyasını düzenleyin ve gerekli API anahtarlarını ekleyin:
+```
+MONGODB_URI=your_mongodb_connection_string
+TMDB_API_KEY=your_tmdb_api_key
+GEOAPIFY_API_KEY=your_geoapify_api_key
+```
 
-## Learn More
+5. Geliştirme sunucusunu başlatın:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Uygulama [http://localhost:3000](http://localhost:3000) adresinde çalışacaktır.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Yapı
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+where-is-this-nextjs/
+├── app/
+│   ├── api/              # API routes (backend)
+│   │   ├── popular-movies/
+│   │   ├── movie/[id]/
+│   │   ├── search-movie/
+│   │   └── imdbid/[id]/
+│   ├── components/       # React component'leri
+│   ├── movie/[id]/       # Film detay sayfası
+│   ├── search/[text]/    # Arama sonuçları sayfası
+│   └── page.jsx          # Ana sayfa
+├── lib/
+│   ├── mongodb.js        # MongoDB bağlantısı
+│   └── redux/            # Redux store ve actions
+├── models/               # MongoDB modelleri
+└── public/               # Static dosyalar
+```
 
-## Deploy on Vercel
+## API Routes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `GET /api/popular-movies` - Popüler filmleri getir
+- `GET /api/movie/[id]` - Film detaylarını getir
+- `GET /api/search-movie?query=...` - Film ara
+- `GET /api/imdbid/[id]` - IMDB ID'ye göre çekim lokasyonlarını getir
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+### Vercel
+
+Proje Vercel'e deploy edilmeye hazırdır. Detaylı rehber için `VERCEL_DEPLOY.md` dosyasına bakın.
+
+**Hızlı Başlangıç:**
+
+1. Vercel hesabınıza giriş yapın
+2. Yeni proje oluşturun
+3. GitHub repo'nuzu bağlayın
+4. **Environment Variables** ekleyin:
+   - `MONGODB_URI` (zorunlu)
+   - `TMDB_API_KEY` (zorunlu)
+   - `GEOAPIFY_API_KEY` (opsiyonel)
+5. Deploy edin
+
+Vercel otomatik olarak Next.js projelerini algılar ve deploy eder.
+
+**Not:** Environment variables'ları Vercel dashboard'da **Settings > Environment Variables** bölümünden ekleyin.
+
+## Notlar
+
+- MongoDB bağlantısı için connection string gerekli
+- TMDB API key gereklidir (ücretsiz alınabilir)
+- Geoapify API key gereklidir (ücretsiz tier mevcut)
+- Leaflet haritaları için SSR devre dışı bırakılmıştır (dynamic import kullanılmıştır)
+
+## Lisans
+
+MIT
