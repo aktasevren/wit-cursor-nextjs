@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
+import { getImageUrl } from '@/lib/utils/imageUrl';
 
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), {
   ssr: false,
@@ -26,56 +27,153 @@ const getLeafletIcon = () => {
   return null;
 };
 
-// Location Loading Component
-const LocationLoading = () => {
-  const loadingMessages = [
-    'Searching for filming locations...',
-    'Loading map...',
-    'Calculating coordinates...',
-    'Detecting film sets...',
-    'Preparing locations...',
-  ];
+// Component to fit map bounds to all markers
+// This must be used inside MapContainer to access useMap hook
+const FitBounds = dynamic(
+  () =>
+    import('react-leaflet').then((mod) => {
+      function FitBounds({ coordinates }) {
+        const map = mod.useMap();
+        const L = require('leaflet');
 
-  const [currentMessage, setCurrentMessage] = useState(0);
+        useEffect(() => {
+          if (!coordinates || coordinates.length === 0) return;
+
+          const validCoordinates = coordinates.filter(
+            (coord) => coord.Ycoor !== undefined && coord.Xcoor !== undefined
+          );
+
+          if (validCoordinates.length === 0) return;
+
+          try {
+            const bounds = L.latLngBounds(
+              validCoordinates.map((coord) => [coord.Ycoor, coord.Xcoor])
+            );
+
+            // Add padding to bounds for better visibility
+            map.fitBounds(bounds, {
+              padding: [50, 50],
+              maxZoom: 12,
+            });
+          } catch (error) {
+            console.error('Error fitting bounds:', error);
+          }
+        }, [map, coordinates]);
+
+        return null;
+      }
+      return FitBounds;
+    }),
+  { ssr: false }
+);
+
+// Location Loading Component
+const LocationLoading = ({ movieImages = [], poster = null }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Use poster as fallback if no images available
+  const displayImages = movieImages.length > 0 
+    ? movieImages 
+    : poster 
+      ? [poster] 
+      : [];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentMessage((prev) => (prev + 1) % loadingMessages.length);
-    }, 1000);
+    if (displayImages.length > 0) {
+      const imageInterval = setInterval(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % displayImages.length);
+      }, 2500); // Change image every 2.5 seconds
 
-    return () => clearInterval(interval);
-  }, []);
+      return () => clearInterval(imageInterval);
+    }
+  }, [displayImages.length]);
+
+  const getPrevIndex = (current, total) => {
+    return current === 0 ? total - 1 : current - 1;
+  };
+
+  const getNextIndex = (current, total) => {
+    return current === total - 1 ? 0 : current + 1;
+  };
+
+  // If no images and no poster, show nothing
+  if (displayImages.length === 0) {
+    return <div className="location-loading-container"></div>;
+  }
+
+  const prevIndex = getPrevIndex(currentImageIndex, displayImages.length);
+  const nextIndex = getNextIndex(currentImageIndex, displayImages.length);
 
   return (
     <div className="location-loading-container">
-      <div className="loading-content">
-        <div className="loading-animation">
-          <div className="globe-wrapper">
-            <div className="globe">
-              <div className="globe-inner">
-                <div className="map-pin map-pin-1">📍</div>
-                <div className="map-pin map-pin-2">📍</div>
-                <div className="map-pin map-pin-3">📍</div>
-              </div>
-            </div>
+      <div className="movie-images-carousel">
+        {/* Previous Image (Small) */}
+        {displayImages.length > 1 && (
+          <div className="carousel-image carousel-prev">
+            <div
+              className="carousel-image-inner"
+              style={{
+                backgroundImage: `url(/api/image?path=${encodeURIComponent(displayImages[prevIndex])}&size=w342)`,
+              }}
+            />
           </div>
-          <div className="pulse-ring pulse-ring-1"></div>
-          <div className="pulse-ring pulse-ring-2"></div>
-          <div className="pulse-ring pulse-ring-3"></div>
-        </div>
-        
-        <div className="loading-text">
-          <h2 className="loading-title">Finding Locations</h2>
-          <p className="loading-message">{loadingMessages[currentMessage]}</p>
-          <div className="loading-progress">
-            <div className="progress-bar"></div>
-          </div>
+        )}
+
+        {/* Current Image (Large) */}
+        <div className="carousel-image carousel-current">
+          <div
+            className="carousel-image-inner"
+            style={{
+              backgroundImage: `url(/api/image?path=${encodeURIComponent(displayImages[currentImageIndex])}&size=w780)`,
+            }}
+          />
         </div>
 
-        <div className="loading-features">
-          <div className="feature-dot feature-dot-1"></div>
-          <div className="feature-dot feature-dot-2"></div>
-          <div className="feature-dot feature-dot-3"></div>
+        {/* Next Image (Small) */}
+        {displayImages.length > 1 && (
+          <div className="carousel-image carousel-next">
+            <div
+              className="carousel-image-inner"
+              style={{
+                backgroundImage: `url(/api/image?path=${encodeURIComponent(displayImages[nextIndex])}&size=w342)`,
+              }}
+            />
+          </div>
+        )}
+      </div>
+      <div className="loading-message-text">
+        <p>Locations are being loaded, please wait...</p>
+      </div>
+    </div>
+  );
+};
+
+// Movie Info Header Component
+const MovieInfoHeader = ({ movieDetails, poster }) => {
+  if (!movieDetails || !poster) return null;
+
+  return (
+    <div className="movie-info-header">
+      <div className="movie-info-content">
+        {poster && (
+          <div className="movie-poster">
+            <img 
+              src={getImageUrl(poster, 'w342')} 
+              alt={`${movieDetails.title || movieDetails.original_title || 'Movie'} poster - ${movieDetails.overview?.substring(0, 60) || 'Filming locations'}`}
+              className="poster-image"
+              loading="lazy"
+              decoding="async"
+              width={342}
+              height={513}
+              sizes="(max-width: 576px) 100px, (max-width: 768px) 120px, 150px"
+            />
+          </div>
+        )}
+        <div className="movie-info-text">
+          <h2 className="movie-title">{movieDetails.title || 'Unknown Movie'}</h2>
+          {movieDetails.overview && (
+            <p className="movie-overview">{movieDetails.overview}</p>
+          )}
         </div>
       </div>
     </div>
@@ -83,15 +181,17 @@ const LocationLoading = () => {
 };
 
 export function SelectedMovie() {
-  const [movieInfos, poster] = useSelector((state) => [
+  const [movieInfos, poster, movieDetails, movieImages] = useSelector((state) => [
     state.MovieReducer.movieInfos,
     state.MovieReducer.poster,
+    state.MovieReducer.movieDetails,
+    state.MovieReducer.movieImages,
   ]);
 
   const [coordinates, setCoordinates] = useState([]);
   const [showMap, setShowMap] = useState(false);
   const [loadingStartTime] = useState(Date.now());
-  const [minLoadingTime] = useState(5000); // Minimum 5 seconds
+  const [minLoadingTime] = useState(10000); // Minimum 10 seconds
 
   useEffect(() => {
     async function processLocations() {
@@ -124,10 +224,12 @@ export function SelectedMovie() {
   return (
     <div className="selected-movie-container">
       {!showMap || coordinates.length === 0 ? (
-        <LocationLoading />
+        <LocationLoading movieImages={movieImages || []} poster={poster} />
       ) : (
-        <div className="map-wrapper">
-          <MapContainer
+        <div className="map-section">
+          <MovieInfoHeader movieDetails={movieDetails} poster={poster} />
+          <div className="map-wrapper">
+            <MapContainer
             center={defaultCenter}
             zoom={3}
             minZoom={0}
@@ -139,6 +241,7 @@ export function SelectedMovie() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://tile.openstreetmap.de/{z}/{x}/{y}.png"
             />
+            <FitBounds coordinates={coordinates} />
             {coordinates.map(
               (elem, index) =>
                 elem.Ycoor !== undefined &&
@@ -180,6 +283,7 @@ export function SelectedMovie() {
                 )
             )}
           </MapContainer>
+          </div>
         </div>
       )}
     </div>

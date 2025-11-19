@@ -18,8 +18,14 @@ export default function Home() {
   return (
     <div className="App">
       <NavbarComponent />
-      <Searchbar />
-      <Movies />
+      <main>
+        <section aria-label="Search movies">
+          <Searchbar />
+        </section>
+        <section aria-label="Popular movies">
+          <Movies />
+        </section>
+      </main>
       <Footer />
     </div>
   );

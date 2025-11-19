@@ -52,7 +52,12 @@ export default function Searchbar() {
             }}
             className="search-input"
           />
-          <Button onClick={onSubmit} className="search-button">
+          <Button 
+            onClick={onSubmit} 
+            className="search-button"
+            type="submit"
+            aria-label="Search movies"
+          >
             <b>Search</b>
           </Button>
         </InputGroup>

@@ -28,31 +28,41 @@ export async function GET(request, { params }) {
     }
 
     const response = await axios.get(
-      `https://api.themoviedb.org/3/movie/${id}?api_key=${TMDB_API_KEY}&language=en-US`,
+      `https://api.themoviedb.org/3/movie/${id}/images?api_key=${TMDB_API_KEY}`,
       {
         timeout: 10000,
       }
     );
 
+    // Get backdrops (set görselleri)
+    const backdrops = response.data?.backdrops || [];
+    const posters = response.data?.posters || [];
+    
+    // Combine backdrops and posters, prioritize backdrops
+    let allImages = [...backdrops.map(img => img.file_path)];
+    
+    // If no backdrops, use posters
+    if (allImages.length === 0 && posters.length > 0) {
+      allImages = posters.map(img => img.file_path);
+    } else if (allImages.length < 10 && posters.length > 0) {
+      // Add some posters if we don't have enough backdrops
+      const additionalPosters = posters.slice(0, 10 - allImages.length).map(img => img.file_path);
+      allImages = [...allImages, ...additionalPosters];
+    }
+    
+    // Limit to 10 images total
+    const limitedImages = allImages.slice(0, 10);
+
     return NextResponse.json({
-      imdb_id: response.data?.imdb_id || null,
-      title: response.data?.title || null,
-      original_title: response.data?.original_title || null,
-      overview: response.data?.overview || null,
-      poster_path: response.data?.poster_path || null,
-      backdrop_path: response.data?.backdrop_path || null,
-      release_date: response.data?.release_date || null,
-      genres: response.data?.genres || [],
-      production_countries: response.data?.production_countries || [],
-      runtime: response.data?.runtime || null,
-      vote_average: response.data?.vote_average || null,
+      images: limitedImages,
+      total: allImages.length,
     });
   } catch (error) {
-    console.error('Error fetching movie details:', error.message || error);
+    console.error('Error fetching movie images:', error.message || error);
     
     if (error.response) {
       return NextResponse.json(
-        { error: 'Failed to fetch movie details', details: error.response.data },
+        { error: 'Failed to fetch movie images', details: error.response.data },
         { status: error.response.status || 500 }
       );
     } else if (error.request) {
@@ -63,7 +73,7 @@ export async function GET(request, { params }) {
     }
     
     return NextResponse.json(
-      { error: 'Failed to fetch movie details', details: error.message },
+      { error: 'Failed to fetch movie images', details: error.message },
       { status: 500 }
     );
   }

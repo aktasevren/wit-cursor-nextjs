@@ -23,8 +23,14 @@ export default function SearchPage() {
   return (
     <div className="App">
       <NavbarComponent />
-      <Searchbar />
-      <SearchedMovies />
+      <main>
+        <section aria-label="Search movies">
+          <Searchbar />
+        </section>
+        <section aria-label={`Search results for: ${searchText}`}>
+          <SearchedMovies />
+        </section>
+      </main>
       <Footer />
     </div>
   );

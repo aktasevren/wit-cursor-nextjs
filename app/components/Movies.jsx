@@ -117,9 +117,13 @@ export default function Movies() {
               >
                 <img
                   className="card__background"
-                  src={getImageUrl(movie.poster_path, 'original')}
-                  alt={movie.overview?.slice(0, 144) + '...' || 'Movie poster'}
+                  src={getImageUrl(movie.poster_path, 'w500')}
+                  alt={`${movie.original_title} movie poster - ${movie.overview?.substring(0, 100) || 'Popular movie'}`}
                   loading="lazy"
+                  decoding="async"
+                  width={500}
+                  height={750}
+                  sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 25vw"
                 />
                 <div className="card__content | flow">
                   <div className="card__content--container | flow">
