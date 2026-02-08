@@ -2078,9 +2078,10 @@ p {
   }
 }
 
-/* ---------- Arama çubuğu (kesilme yok: overflow visible) ---------- */
+/* ---------- Arama çubuğu: dropdown alttaki içeriğin üstünde kalır ---------- */
 .searchbar-wrapper {
   position: relative;
+  z-index: 20;
   overflow: visible;
 }
 

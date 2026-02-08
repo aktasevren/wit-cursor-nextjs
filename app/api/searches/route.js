@@ -75,11 +75,21 @@ async function resolveTitle(movieId, currentTitle) {
   return currentTitle || id;
 }
 
+function emptyResponse() {
+  return NextResponse.json({ recent: [], popular: [] });
+}
+
 export async function GET(request) {
   try {
-    const conn = await connect();
+    let conn = null;
+    try {
+      conn = await connect();
+    } catch (e) {
+      console.warn('Searches: MongoDB connection failed', e?.message || e);
+      return emptyResponse();
+    }
     if (!conn) {
-      return NextResponse.json({ recent: [], popular: [], error: 'MongoDB not configured' });
+      return emptyResponse();
     }
 
     const { searchParams } = new URL(request.url);
@@ -131,10 +141,7 @@ export async function GET(request) {
     return NextResponse.json({ recent });
   } catch (err) {
     console.error('Searches GET error:', err.message);
-    return NextResponse.json(
-      { error: 'Internal Server Error', recent: [], popular: [] },
-      { status: 500 }
-    );
+    return emptyResponse();
   }
 }
 

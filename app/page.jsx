@@ -11,11 +11,11 @@ export default function Home() {
 
   useEffect(() => {
     fetch('/api/searches?type=popular&limit=8')
-      .then((res) => res.json())
+      .then((res) => res.ok ? res.json() : { popular: [] })
       .then((data) => {
-        if (Array.isArray(data.popular)) setPopular(data.popular);
+        if (Array.isArray(data?.popular)) setPopular(data.popular);
       })
-      .catch(() => {});
+      .catch(() => setPopular([]));
   }, []);
 
   const trendingItems = (popular || []).map((item) => {
@@ -33,8 +33,10 @@ export default function Home() {
       <AppHeader />
 
       <main className="pt-24 flex-1">
-        <section className="relative min-h-[60vh] flex flex-col items-center justify-center px-6 overflow-hidden py-20">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] -z-10" />
+        <section className="relative min-h-[60vh] flex flex-col items-center justify-center px-6 py-20 overflow-visible">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10" aria-hidden="true">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
+          </div>
           <div className="text-center mb-12 max-w-3xl">
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60 leading-tight">
               Discover where the magic happened.
