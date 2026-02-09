@@ -42,10 +42,14 @@ export async function GET(request) {
     const formatted = feature?.properties?.formatted || feature?.properties?.name || place;
     
     if (!coordinates || coordinates.length < 2) {
-      return NextResponse.json(
-        { error: 'Coordinates not found for this place' },
-        { status: 404 }
-      );
+      return NextResponse.json({
+        error: 'Coordinates not found for this place',
+        Xcoor: null,
+        Ycoor: null,
+        bbox: null,
+        placeType: null,
+        formatted: place,
+      });
     }
 
     return NextResponse.json({

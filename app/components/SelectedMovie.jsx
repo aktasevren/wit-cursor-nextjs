@@ -48,7 +48,7 @@ const FitBounds = dynamic(
           if (!coordinates || coordinates.length === 0) return;
 
           const validCoordinates = coordinates.filter(
-            (coord) => coord.Ycoor !== undefined && coord.Xcoor !== undefined
+            (coord) => coord != null && coord.Ycoor != null && coord.Xcoor != null
           );
 
           if (validCoordinates.length === 0) return;
@@ -85,7 +85,7 @@ const MapResetControl = dynamic(
           if (!coordinates?.length || resetTrigger == null) return;
 
           const valid = coordinates.filter(
-            (c) => c.Ycoor !== undefined && c.Xcoor !== undefined
+            (c) => c != null && c.Ycoor != null && c.Xcoor != null
           );
           if (valid.length === 0) return;
 
@@ -128,6 +128,7 @@ const MapFlyToLocation = dynamic(
 );
 
 // Harita container boyutu değişince Leaflet'in invalidateSize ile güncellemesi (mobil dahil)
+// Viewport'a girdiğinde invalidateSize (mobilde aşağıda kalan harita siyah kalmasın)
 const MapResize = dynamic(
   () =>
     import('react-leaflet').then((mod) => {
@@ -140,26 +141,54 @@ const MapResize = dynamic(
               map.invalidateSize();
             } catch (e) {}
           };
-          run();
-          const t1 = setTimeout(run, 100);
-          const t2 = setTimeout(run, 500);
-          const t3 = setTimeout(run, 1200);
+          // İlk çalıştırma: layout tamamlansın diye RAF + kısa gecikmeler (mobil siyah ekran fix)
+          const raf = typeof requestAnimationFrame !== 'undefined'
+            ? requestAnimationFrame(() => run())
+            : null;
+          const t1 = setTimeout(run, 50);
+          const t2 = setTimeout(run, 200);
+          const t3 = setTimeout(run, 500);
+          const t4 = setTimeout(run, 1000);
+
+          const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+          const timeouts = [t1, t2, t3, t4];
+          if (isMobile) {
+            timeouts.push(setTimeout(run, 1500));
+            timeouts.push(setTimeout(run, 2500));
+          }
 
           const container = map.getContainer();
           if (container && typeof ResizeObserver !== 'undefined') {
             const ro = new ResizeObserver(() => run());
             ro.observe(container);
+            if (typeof IntersectionObserver !== 'undefined') {
+              // Mobilde harita viewport'a girer girmez invalidateSize (threshold düşük)
+              const io = new IntersectionObserver(
+                (entries) => {
+                  if (entries[0]?.isIntersecting) {
+                    run();
+                    if (isMobile) setTimeout(run, 100);
+                  }
+                },
+                { root: null, rootMargin: '20px', threshold: 0.01 }
+              );
+              io.observe(container);
+              return () => {
+                if (raf && typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(raf);
+                timeouts.forEach(clearTimeout);
+                ro.disconnect();
+                io.disconnect();
+              };
+            }
             return () => {
-              clearTimeout(t1);
-              clearTimeout(t2);
-              clearTimeout(t3);
+              if (raf && typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(raf);
+              timeouts.forEach(clearTimeout);
               ro.disconnect();
             };
           }
           return () => {
-            clearTimeout(t1);
-            clearTimeout(t2);
-            clearTimeout(t3);
+            if (raf && typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(raf);
+            timeouts.forEach(clearTimeout);
           };
         }, [map]);
 
@@ -292,12 +321,10 @@ const LocationLoading = ({
 
 function SelectedMovie({ onLoadingChange }) {
   const router = useRouter();
-  const [movieInfos, movieDetails, noMovie, geocodeProgress] = useSelector((state) => [
-    state.MovieReducer.movieInfos,
-    state.MovieReducer.movieDetails,
-    state.MovieReducer.noMovie,
-    state.MovieReducer.geocodeProgress,
-  ]);
+  const movieInfos = useSelector((state) => state.MovieReducer.movieInfos);
+  const movieDetails = useSelector((state) => state.MovieReducer.movieDetails);
+  const noMovie = useSelector((state) => state.MovieReducer.noMovie);
+  const geocodeProgress = useSelector((state) => state.MovieReducer.geocodeProgress);
 
   const [coordinates, setCoordinates] = useState([]);
   const [showMap, setShowMap] = useState(false);
@@ -307,7 +334,6 @@ function SelectedMovie({ onLoadingChange }) {
   const minLoadingTime = 10000; // Minimum 10 seconds
   const [redirectCountdown, setRedirectCountdown] = useState(null);
   const containerRef = useRef(null);
-  const mapSectionRef = useRef(null);
   useEffect(() => {
     if (!loadingStartTimeRef.current) loadingStartTimeRef.current = Date.now();
   }, []);
@@ -402,7 +428,7 @@ function SelectedMovie({ onLoadingChange }) {
       ) : (
         <div className="map-screen flex flex-1 min-h-0 w-full self-stretch">
           {/* Sidebar: yükseklik içeriğe göre; liste uzadıkça sayfa scroll eder */}
-          <aside className="map-screen-sidebar flex flex-col w-full max-w-[380px] flex-shrink-0">
+          <aside className="map-screen-sidebar map-screen-sidebar--desktop flex flex-col w-full max-w-[380px] flex-shrink-0">
             <div className="map-screen-featured p-8 border-b border-white/10">
               <div className="flex items-center gap-3 text-primary text-[10px] font-bold uppercase tracking-[0.3em] mb-5">
                 <span className="h-px w-10 bg-primary" aria-hidden />
@@ -465,25 +491,26 @@ function SelectedMovie({ onLoadingChange }) {
 
           </aside>
 
-          {/* Harita: sticky wrapper ile sayfa scroll ederken ekranda sabit kalır; kontroller harita alanı içinde */}
-          <section
-            ref={mapSectionRef}
-            className="map-screen-map relative flex-1 min-w-0"
-          >
+          {/* Harita: mobilde tam ekran, masaüstünde sidebar yanında */}
+          <section className="map-screen-map relative flex-1 min-w-0">
             <div className="map-screen-map-sticky relative z-0">
               <div className="map-screen-map-inner">
-                <div className="absolute inset-0 w-full h-full z-0">
+                <div className="map-screen-map-box">
                 <MapContainer
-                center={defaultCenter}
-                zoom={5}
-                minZoom={0}
-                maxZoom={12}
-                scrollWheelZoom
-                className="map-screen-leaflet"
-              >
+                  center={defaultCenter}
+                  zoom={5}
+                  minZoom={0}
+                  maxZoom={12}
+                  scrollWheelZoom
+                  className="map-screen-leaflet"
+                  whenReady={(map) => {
+                    setTimeout(() => { try { map.invalidateSize(); } catch (_) {} }, 100);
+                    setTimeout(() => { try { map.invalidateSize(); } catch (_) {} }, 400);
+                  }}
+                >
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://tile.openstreetmap.de/{z}/{x}/{y}.png"
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 <MapResize />
                 <FitBounds coordinates={coordinates} />
@@ -491,7 +518,7 @@ function SelectedMovie({ onLoadingChange }) {
                 <MapFlyToLocation coordinates={coordinates} flyToIndex={flyToLocationIndex} />
                 <MarkerClusterGroup chunkedLoading>
                 {coordinates.map((elem, index) => {
-                  const hasPoint = elem.Ycoor !== undefined && elem.Xcoor !== undefined;
+                  const hasPoint = elem != null && elem.Ycoor != null && elem.Xcoor != null;
                   if (!hasPoint) return null;
 
                   const hasBbox = Array.isArray(elem.bbox) && elem.bbox.length === 4;
@@ -559,38 +586,36 @@ function SelectedMovie({ onLoadingChange }) {
               </MapContainer>
                 </div>
 
-                {/* Gradient overlay — Leaflet üstünde (z-index > leaflet) */}
-                <div className="absolute inset-0 z-[1100] pointer-events-none bg-gradient-to-r from-[#0a0a0a]/35 to-transparent" />
-
-                {/* Top center: Exploring + Reset — harita üstünde */}
-                <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[1100]">
-              <div className="bg-[#0a0a0a]/60 backdrop-blur-md border border-white/10 rounded-full px-6 py-2.5 flex items-center gap-5 shadow-xl">
-                <span className="text-[10px] font-medium tracking-widest text-white/60 uppercase">
-                  Exploring: <span className="text-primary font-bold">{movieDetails?.title || movieDetails?.original_title || 'Filming Locations'}</span>
-                </span>
-                <div className="h-3 w-px bg-white/10" aria-hidden />
-                <button
-                  type="button"
-                  className="text-[10px] font-bold text-white/30 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-2"
-                  onClick={() => setMapResetTrigger((t) => t + 1)}
-                >
-                  Reset Map
-                  <IconRefresh size={14} />
-                </button>
-              </div>
-            </div>
-
-                {/* Sol üst: legend — harita üstünde */}
-                <div className="absolute top-8 left-8 z-[1100] flex gap-6 bg-[#0a0a0a]/80 backdrop-blur-xl px-5 py-3 border border-white/5 rounded">
-              <div className="flex items-center gap-3">
-                <div className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_#1111d4]" aria-hidden />
-                <span className="text-[9px] font-bold text-white/40 uppercase tracking-[0.2em]">Filmed Here</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-1.5 w-1.5 rounded-full bg-white/10" aria-hidden />
-                <span className="text-[9px] font-bold text-white/40 uppercase tracking-[0.2em]">Region</span>
-              </div>
-            </div>
+                {/* Overlay ve kontroller: sadece masaüstünde (mobilde sadece harita) */}
+                <div className="map-screen-overlays absolute inset-0 z-[1100] pointer-events-none hidden md:block">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/35 to-transparent" />
+                </div>
+                <div className="map-screen-controls absolute top-6 left-1/2 -translate-x-1/2 z-[1101] hidden md:block">
+                  <div className="bg-[#0a0a0a]/60 backdrop-blur-md border border-white/10 rounded-full px-6 py-2.5 flex items-center gap-5 shadow-xl">
+                    <span className="text-[10px] font-medium tracking-widest text-white/60 uppercase">
+                      Exploring: <span className="text-primary font-bold">{movieDetails?.title || movieDetails?.original_title || 'Filming Locations'}</span>
+                    </span>
+                    <div className="h-3 w-px bg-white/10" aria-hidden />
+                    <button
+                      type="button"
+                      className="text-[10px] font-bold text-white/30 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-2 pointer-events-auto"
+                      onClick={() => setMapResetTrigger((t) => t + 1)}
+                    >
+                      Reset Map
+                      <IconRefresh size={14} />
+                    </button>
+                  </div>
+                </div>
+                <div className="map-screen-legend absolute top-8 left-8 z-[1101] gap-6 bg-[#0a0a0a]/80 backdrop-blur-xl px-5 py-3 border border-white/5 rounded hidden md:flex">
+                  <div className="flex items-center gap-3">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_#1111d4]" aria-hidden />
+                    <span className="text-[9px] font-bold text-white/40 uppercase tracking-[0.2em]">Filmed Here</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-1.5 w-1.5 rounded-full bg-white/10" aria-hidden />
+                    <span className="text-[9px] font-bold text-white/40 uppercase tracking-[0.2em]">Region</span>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
