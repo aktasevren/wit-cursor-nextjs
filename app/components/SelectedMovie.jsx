@@ -127,20 +127,42 @@ const MapFlyToLocation = dynamic(
   { ssr: false }
 );
 
-// Harita container boyutu değişince Leaflet'in invalidateSize ile güncellemesi
+// Harita container boyutu değişince Leaflet'in invalidateSize ile güncellemesi (mobil dahil)
 const MapResize = dynamic(
   () =>
     import('react-leaflet').then((mod) => {
       function MapResize() {
         const map = mod.useMap();
+
         useEffect(() => {
-          const t = setTimeout(() => {
+          const run = () => {
             try {
               map.invalidateSize();
             } catch (e) {}
-          }, 100);
-          return () => clearTimeout(t);
+          };
+          run();
+          const t1 = setTimeout(run, 100);
+          const t2 = setTimeout(run, 500);
+          const t3 = setTimeout(run, 1200);
+
+          const container = map.getContainer();
+          if (container && typeof ResizeObserver !== 'undefined') {
+            const ro = new ResizeObserver(() => run());
+            ro.observe(container);
+            return () => {
+              clearTimeout(t1);
+              clearTimeout(t2);
+              clearTimeout(t3);
+              ro.disconnect();
+            };
+          }
+          return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+            clearTimeout(t3);
+          };
         }, [map]);
+
         return null;
       }
       return MapResize;
