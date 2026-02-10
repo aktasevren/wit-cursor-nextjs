@@ -130,109 +130,110 @@ export default function Home() {
           )}
         </section>
 
-        <section className="max-w-7xl mx-auto px-6 py-24 border-t border-white/5">
-          <div className="grid md:grid-cols-12 gap-12 items-center">
-            <div className="md:col-span-6 space-y-8">
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full border border-primary/20">
-                <span className="text-xs font-bold uppercase tracking-widest">Global Community</span>
-              </div>
-              <h2 className="text-sm md:text-base font-bold leading-tight">
-                Join 50k+ users who have discovered 12,000+ filming locations.
-              </h2>
-              <p className="text-white/50 text-xl leading-relaxed">
-                Our community is the heart of the discovery experience. From the neon streets of Tokyo to the rolling
-                hills of New Zealand, thousands of film enthusiasts are mapping cinematic history together.
+        <section className="max-w-7xl mx-auto px-6 py-16 md:py-20 border-t border-white/5">
+          <div className="grid md:grid-cols-12 gap-8 md:gap-10 items-center">
+            <div className="md:col-span-5 order-2 md:order-1 space-y-4">
+              <span className="inline-block text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80">
+                Global Community
+              </span>
+              <p className="text-white/90 text-sm md:text-base leading-relaxed max-w-md">
+                Join 50k+ users who have discovered 12,000+ filming locations — from Tokyo to New Zealand, we’re mapping cinematic history together.
               </p>
-              <div className="grid grid-cols-2 gap-8 pt-4">
-                <div className="space-y-2">
-                  <p className="text-3xl font-bold text-accent-gold">12k+</p>
-                  <p className="text-sm text-white/40 uppercase tracking-widest">Verified Locations</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-3xl font-bold text-accent-gold">50k+</p>
-                  <p className="text-sm text-white/40 uppercase tracking-widest">Active Members</p>
-                </div>
+              <div className="flex flex-wrap gap-3 pt-1">
+                <span className="inline-flex items-center gap-1.5 bg-accent-gold/15 text-accent-gold border border-accent-gold/30 rounded-full px-3 py-1.5 text-xs font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse" />
+                  12k+ locations
+                </span>
+                <span className="inline-flex items-center gap-1.5 bg-primary/15 text-primary border border-primary/30 rounded-full px-3 py-1.5 text-xs font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0.5s' }} />
+                  50k+ explorers
+                </span>
               </div>
             </div>
-            <div className="md:col-span-6 relative group">
-              <div className="aspect-[4/3] rounded-3xl overflow-hidden border border-white/10 relative shadow-2xl">
+            <div className="md:col-span-7 order-1 md:order-2 relative">
+              <div className="community-map-card relative rounded-2xl overflow-hidden border border-white/10 bg-white/[0.02]">
                 <div
-                  className="absolute inset-0 bg-cover bg-center grayscale contrast-[1.2] brightness-50"
+                  className="aspect-[16/10] md:aspect-[2/1] bg-cover bg-center"
                   style={{
                     backgroundImage:
-                      "url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=2000')",
+                      "url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1200')",
+                    filter: 'brightness(0.85) contrast(1.05) saturate(0.7)',
                   }}
                   aria-hidden
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-60" />
-                <div className="absolute inset-0 map-vignette pointer-events-none" />
-                <div className="absolute top-1/4 left-1/3">
-                  <div className="relative flex flex-col items-center group/pin cursor-pointer">
-                    <div className="bg-accent-gold p-1.5 rounded-full shadow-[0_0_20px_rgba(212,175,55,0.6)] text-black">
-                      <IconVideocam size={18} />
-                    </div>
-                    <div className="absolute top-10 bg-black/80 backdrop-blur-md border border-white/10 px-3 py-1 rounded-lg">
-                      <span className="text-[10px] font-bold whitespace-nowrap">Skyfall - London</span>
-                    </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-background-dark/90 via-background-dark/20 to-transparent" />
+                <div className="absolute inset-0 flex items-end justify-center pb-4 md:pb-6">
+                  <div className="flex flex-wrap justify-center gap-2 md:gap-3 px-3">
+                    {[
+                      { label: 'Skyfall', place: 'London' },
+                      { label: "King's Speech", place: 'UK' },
+                      { label: 'Harry Potter', place: 'Scotland' },
+                    ].map((pin) => (
+                      <div
+                        key={pin.label}
+                        className="community-pin flex items-center gap-1.5 bg-black/70 backdrop-blur-sm border border-white/20 rounded-full pl-2 pr-2.5 py-1.5 shadow-lg"
+                      >
+                        <span className="text-accent-gold">
+                          <IconVideocam size={14} />
+                        </span>
+                        <span className="text-[10px] md:text-xs font-semibold text-white whitespace-nowrap">
+                          {pin.label}
+                          <span className="text-white/50 font-normal ml-0.5">· {pin.place}</span>
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <div className="absolute top-1/2 left-2/3">
-                  <div className="relative flex flex-col items-center group/pin cursor-pointer">
-                    <div className="bg-accent-gold p-1.5 rounded-full shadow-[0_0_20px_rgba(212,175,55,0.6)] text-black">
-                      <IconVideocam size={18} />
-                    </div>
-                    <div className="absolute top-10 bg-black/80 backdrop-blur-md border border-white/10 px-3 py-1 rounded-lg">
-                      <span className="text-[10px] font-bold whitespace-nowrap">The King&apos;s Speech</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute bottom-1/3 left-1/4">
-                  <div className="relative flex flex-col items-center group/pin cursor-pointer">
-                    <div className="bg-accent-gold p-1.5 rounded-full shadow-[0_0_20px_rgba(212,175,55,0.6)] text-black">
-                      <IconVideocam size={18} />
-                    </div>
-                    <div className="absolute top-10 bg-black/80 backdrop-blur-md border border-white/10 px-3 py-1 rounded-lg">
-                      <span className="text-[10px] font-bold whitespace-nowrap">Harry Potter</span>
-                    </div>
-                  </div>
+                <div className="absolute top-3 left-3 right-3 flex justify-between items-start pointer-events-none">
+                  <span className="text-[9px] uppercase tracking-widest text-white/40 font-bold rounded px-2 py-1 bg-black/30">
+                    Live map
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400/90 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" title="Active" />
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="max-w-7xl mx-auto px-6 py-24 border-t border-white/5">
-          <h2 className="text-center text-sm font-bold uppercase tracking-[0.3em] text-white/50 mb-14">
+        <section className="max-w-7xl mx-auto px-6 py-16 md:py-20 border-t border-white/5">
+          <p className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-10">
             How it works
-          </h2>
-          <div className="grid md:grid-cols-3 gap-12 text-center">
-            <div className="space-y-4">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/20 border border-primary/30 text-primary">
-                <span className="text-2xl font-bold">1</span>
+          </p>
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+            {[
+              {
+                step: 1,
+                title: 'Search a movie or show',
+                description: 'Type any film or series and pick from suggestions.',
+              },
+              {
+                step: 2,
+                title: 'Explore filming locations',
+                description: 'See where each scene was shot on the map with pins and regions.',
+              },
+              {
+                step: 3,
+                title: 'Plan your visit',
+                description: 'Use the list and map to plan trips to real-world locations.',
+              },
+            ].map((item, i) => (
+              <div key={item.step} className="relative">
+                {i < 2 && (
+                  <div className="hidden md:block absolute top-8 left-1/2 w-1/2 h-px bg-gradient-to-r from-white/20 to-transparent pointer-events-none" style={{ marginLeft: '22px' }} aria-hidden />
+                )}
+                <div className="how-it-works-card h-full rounded-xl border border-white/10 bg-white/[0.02] p-6 md:p-7 text-center md:text-left">
+                  <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-primary/15 border border-primary/25 text-primary text-sm font-bold">
+                    {item.step}
+                  </span>
+                  <h3 className="mt-4 text-sm font-semibold text-white">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-white/50 text-xs leading-relaxed max-w-xs md:max-w-none">
+                    {item.description}
+                  </p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-white">Search a movie or show</h3>
-              <p className="text-white/50 text-sm max-w-xs mx-auto">
-                Type the name of any film or series and pick from the suggestions.
-              </p>
-            </div>
-            <div className="space-y-4">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/20 border border-primary/30 text-primary">
-                <span className="text-2xl font-bold">2</span>
-              </div>
-              <h3 className="text-lg font-semibold text-white">Explore filming locations</h3>
-              <p className="text-white/50 text-sm max-w-xs mx-auto">
-                See where each scene was shot on the map with pins and region highlights.
-              </p>
-            </div>
-            <div className="space-y-4">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/20 border border-primary/30 text-primary">
-                <span className="text-2xl font-bold">3</span>
-              </div>
-              <h3 className="text-lg font-semibold text-white">Plan your visit</h3>
-              <p className="text-white/50 text-sm max-w-xs mx-auto">
-                Use the list and map to plan trips to real-world filming locations.
-              </p>
-            </div>
+            ))}
           </div>
         </section>
       </main>

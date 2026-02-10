@@ -38,17 +38,25 @@
   letter-spacing: 0.12em;
 }
 
-/* Logo + başlık: tüm sayfalarda birebir aynı (ana sayfa / film / arama) */
+/* Logo + başlık: tüm sayfalarda aynı — sinematik (Cinzel), geniş harf aralığı, renkli harfler */
+/* Yüksek özgüllük: .home-page * ile ezilmesin (ana sayfa da dahil her yerde aynı görünsün) */
+header .site-logo-title,
+header .site-logo-title *,
 .site-logo-title,
 .site-logo-title * {
-  font-family: "Space Grotesk", sans-serif !important;
+  font-family: "Cinzel", serif !important;
 }
 .site-logo-title-text {
-  font-size: 32px !important;
-  font-weight: 500 !important;
-  letter-spacing: -0.025em !important;
-  color: #fff !important;
+  font-size: 1.6875rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.32em !important;
   line-height: 1.2 !important;
+  display: inline-flex;
+  flex-wrap: nowrap;
+}
+.site-logo-title-char {
+  display: inline-block;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Homepage: sinematik kayan yazı (marquee) — trending & recent */
@@ -114,6 +122,83 @@
 }
 .chip-glow:hover {
   box-shadow: 0 0 25px -2px rgba(17, 17, 212, 0.7);
+}
+
+/* Community section: eğlenceli harita kartı */
+.community-map-card {
+  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+.community-pin {
+  animation: community-pin-float 3s ease-in-out infinite;
+}
+.community-pin:nth-child(1) { animation-delay: 0s; }
+.community-pin:nth-child(2) { animation-delay: 0.2s; }
+.community-pin:nth-child(3) { animation-delay: 0.4s; }
+@keyframes community-pin-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* How it works: sade kartlar */
+.how-it-works-card {
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.how-it-works-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Location Loading Screen — sinematik yükleme ekranı */
+.location-loading-screen {
+  font-family: "Space Grotesk", sans-serif;
+}
+.location-loading-title {
+  font-family: "Cinzel", serif !important;
+  letter-spacing: 0.08em;
+}
+.location-loading-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+.location-loading-widget {
+  animation: location-widget-in 0.5s ease-out;
+}
+@keyframes location-widget-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
+}
+.location-loading-icon-wrap {
+  width: 10rem;
+  height: 10rem;
+}
+@media (min-width: 640px) {
+  .location-loading-icon-wrap {
+    width: 12rem;
+    height: 12rem;
+  }
+}
+.location-loading-icon-inner {
+  box-shadow: 0 0 24px rgba(17, 17, 212, 0.25), inset 0 0 20px rgba(17, 17, 212, 0.08);
+}
+@keyframes loading-dot {
+  0%, 80%, 100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.animate-loading-dot {
+  animation: loading-dot 1.2s ease-in-out infinite;
 }
 
 /* Loading screen (tasarım birebir) */
@@ -2416,6 +2501,9 @@ p {
 
 .search-suggestion-item:hover {
   background: rgba(159, 211, 199, 0.12);
+}
+.search-suggestion-item:hover .search-suggestion-title {
+  color: #fff !important;
 }
 
 .search-suggestion-poster {

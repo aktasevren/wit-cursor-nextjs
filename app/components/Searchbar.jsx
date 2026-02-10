@@ -37,10 +37,10 @@ const SuggestionItem = React.memo(function SuggestionItem({ item, onClick, glass
           )}
         </div>
         <div className="flex-grow min-w-0">
-          <h4 className="text-lg font-bold group-hover:text-primary transition-colors truncate">{title}</h4>
+          <h4 className="text-lg font-bold text-white truncate">{title}</h4>
           <p className="text-sm text-white/50">{subtitle ? `• ${subtitle}` : ''}</p>
         </div>
-        <span className="text-white/20 group-hover:text-primary transition-colors shrink-0">
+        <span className="text-white/50 shrink-0">
           <IconArrowForward size={18} />
         </span>
       </div>

@@ -209,7 +209,7 @@ const DID_YOU_KNOW_CARD = {
   year: 'Filmed in 1976',
 };
 
-// Location Loading Component — yükleme ekranı, ferah layout
+// Location Loading Component — sinematik yükleme ekranı, sağ üstte Locations widget
 const LocationLoading = ({
   title,
   noLocations,
@@ -218,52 +218,71 @@ const LocationLoading = ({
   const bgImageUrl = 'https://lh3.googleusercontent.com/aida-public/AB6AXuBx_D7M73P067zYOZ6dSXZhl_4120cP67VXWpJznmdOpc6dgj2mwdFq7Gbt5c2F38VQT4Fc6wzI0M4Qg0V8yuuvHzkeqAPGApA1i4sGsPOUn-nhiemUB70vp2NOp2Fw-mTYswi97TNtMV_dQ6orDkIW36wYvSKQzMBRYAynEG28LaQ97RROD5jsZrNO3ijyJaKUijiLwZenEdqYQnVH_G9PMu86AntpOg-4koCTLc0NwcDPkiXPUmAIoRwIsjbh6FTU0vtNamlY0jcw';
 
   return (
-    <div className="fixed inset-0 z-0 bg-[#101022] overflow-auto">
-      {/* Cinematic Background with Blur */}
+    <div className="fixed inset-0 z-0 bg-[#0a0a0f] overflow-auto location-loading-screen">
+      {/* Cinematic background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#101022]/60 via-[#101022]/80 to-[#101022] z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f]/70 via-[#0a0a0f]/90 to-[#0a0a0f] z-10" />
         <div
-          className="w-full h-full bg-center bg-no-repeat bg-cover scale-110 blur-md opacity-40"
+          className="w-full h-full bg-center bg-no-repeat bg-cover scale-105 blur-xl opacity-30"
           style={{ backgroundImage: `url("${bgImageUrl}")` }}
           aria-hidden
         />
+        <div className="absolute inset-0 z-20 location-loading-grain" aria-hidden />
       </div>
 
-      {/* Main: flex column, orta blok üstte ferah, altta kart — çakışma yok */}
-      <main className="relative z-20 flex flex-col min-h-screen w-full px-6 sm:px-8 lg:px-12 pt-24 pb-8">
-        {/* Central Loading Focus — yeterli boşluk */}
-        <div className="flex-1 flex flex-col items-center justify-center min-h-[280px] py-12 sm:py-16">
-          <div className="flex flex-col items-center gap-14 sm:gap-16 max-w-2xl text-center">
-            <div className="relative w-40 h-40 sm:w-48 sm:h-48 flex items-center justify-center">
-              {/* Pulse Rings */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-32 h-32 sm:w-40 sm:h-40 border-2 border-[#1111d4]/40 rounded-full animate-ping" />
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-44 h-44 sm:w-56 sm:h-56 border border-[#1111d4]/20 rounded-full animate-pulse" />
-              </div>
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 bg-[#1111d4]/20 border border-[#1111d4]/50 rounded-full flex items-center justify-center glow-pulse">
-                <IconLocationOn size={56} className="text-[#1111d4] animate-bounce" />
+      {/* Sağ üst: Locations widget — ilgi çekici */}
+      {!noLocations && (
+        <div className="fixed top-24 right-6 sm:right-8 lg:right-12 z-30 location-loading-widget">
+          <div className="flex items-center gap-3 bg-black/60 backdrop-blur-xl border border-white/15 rounded-2xl px-5 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.05)]">
+            <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-[#1111d4]/30 border border-[#1111d4]/50">
+              <IconLocationOn size={26} className="text-[#1111d4]" />
+              <span className="absolute inset-0 rounded-xl border border-[#1111d4]/40 animate-ping opacity-25" aria-hidden />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Locations</p>
+              <p className="text-sm font-semibold text-white mt-0.5">Geocoding...</p>
+              <div className="flex gap-1 mt-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1111d4] animate-loading-dot" style={{ animationDelay: '0s' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1111d4] animate-loading-dot" style={{ animationDelay: '0.2s' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1111d4] animate-loading-dot" style={{ animationDelay: '0.4s' }} />
               </div>
             </div>
-            <div className="space-y-5">
+          </div>
+        </div>
+      )}
+
+      <main className="relative z-20 flex flex-col min-h-screen w-full px-6 sm:px-8 lg:px-12 pt-28 pb-8">
+        {/* Orta: sinematik başlık + ikon */}
+        <div className="flex-1 flex flex-col items-center justify-center min-h-[260px] py-12 sm:py-16">
+          <div className="flex flex-col items-center gap-12 sm:gap-14 max-w-2xl text-center">
+            <div className="relative location-loading-icon-wrap">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-36 h-36 sm:w-44 sm:h-44 border border-[#1111d4]/25 rounded-full animate-pulse" />
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-28 h-28 sm:w-32 sm:h-32 border-2 border-[#1111d4]/35 rounded-full animate-ping opacity-60" />
+              </div>
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-[#1111d4]/15 border border-[#1111d4]/50 rounded-full flex items-center justify-center location-loading-icon-inner">
+                <IconLocationOn size={44} className="text-[#1111d4] sm:w-12 sm:h-12" />
+              </div>
+            </div>
+            <div className="space-y-4">
               {noLocations ? (
                 <>
-                  <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold tracking-tighter px-2">
+                  <h1 className="location-loading-title text-white text-2xl sm:text-3xl md:text-4xl font-semibold tracking-wide px-2">
                     No filming locations found
                   </h1>
-                  <p className="text-white/70 text-lg sm:text-xl font-medium px-2">
-                    Redirecting to homepage in {redirectCountdown ?? 5} second{(redirectCountdown ?? 5) === 1 ? '' : 's'}…
+                  <p className="text-white/60 text-sm sm:text-base font-medium px-2">
+                    Redirecting in {redirectCountdown ?? 5} second{(redirectCountdown ?? 5) === 1 ? '' : 's'}…
                   </p>
                 </>
               ) : (
                 <>
-                  <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold tracking-tighter px-2">
+                  <h1 className="location-loading-title text-white text-2xl sm:text-3xl md:text-4xl font-semibold tracking-[0.12em] px-2">
                     Mapping the Galaxy...
                   </h1>
-                  <p className="text-white/60 text-base sm:text-lg font-medium max-w-lg mx-auto leading-relaxed">
-                    Geocoding filming locations for{' '}
-                    <span className="text-white">{title || 'this film'}</span>
+                  <p className="text-white/50 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
+                    Geocoding filming locations for <span className="text-white/90">{title || 'this film'}</span>
                   </p>
                 </>
               )}
@@ -271,10 +290,10 @@ const LocationLoading = ({
           </div>
         </div>
 
-        {/* Trivia Card — altta, sabit değil akışta; sıkışıklık yok */}
+        {/* Did You Know kartı */}
         <div className="w-full max-w-3xl mx-auto mt-8 sm:mt-12 flex-shrink-0">
-          <div className="blur-backdrop bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl flex flex-col md:flex-row gap-8 items-start">
-            <div className="w-full md:w-56 lg:w-64 aspect-video rounded-xl overflow-hidden flex-shrink-0">
+          <div className="blur-backdrop bg-white/[0.04] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl flex flex-col md:flex-row gap-8 items-start">
+            <div className="w-full md:w-56 lg:w-64 aspect-video rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
               <div
                 className="w-full h-full bg-center bg-no-repeat bg-cover transform hover:scale-105 transition-transform duration-500"
                 style={{ backgroundImage: `url("${DID_YOU_KNOW_CARD.imageUrl}")` }}
@@ -286,35 +305,35 @@ const LocationLoading = ({
                 <IconLightbulb size={20} className="text-[#1111d4] flex-shrink-0" />
                 <span className="text-[#1111d4] font-bold text-xs uppercase tracking-widest">Did You Know?</span>
               </div>
-              <h3 className="text-white text-xl font-bold leading-snug">{DID_YOU_KNOW_CARD.title}</h3>
-              <p className="text-white/60 text-sm sm:text-base leading-relaxed">{DID_YOU_KNOW_CARD.body}</p>
+              <h3 className="text-white text-lg font-bold leading-snug">{DID_YOU_KNOW_CARD.title}</h3>
+              <p className="text-white/55 text-sm leading-relaxed">{DID_YOU_KNOW_CARD.body}</p>
               <div className="mt-1 flex flex-wrap items-center gap-5">
-                <div className="flex items-center gap-2 text-sm text-white/40">
-                  <IconMap size={16} className="flex-shrink-0" />
+                <div className="flex items-center gap-2 text-xs text-white/40">
+                  <IconMap size={14} className="flex-shrink-0" />
                   <span>{DID_YOU_KNOW_CARD.location}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-white/40">
-                  <IconSchedule size={16} className="flex-shrink-0" />
+                <div className="flex items-center gap-2 text-xs text-white/40">
+                  <IconSchedule size={14} className="flex-shrink-0" />
                   <span>{DID_YOU_KNOW_CARD.year}</span>
                 </div>
               </div>
             </div>
           </div>
-          <div className="mt-8 flex justify-center items-center gap-4">
-            <span className="text-white/30 text-[11px] tracking-[0.25em] uppercase">Loading Cinematic Database</span>
+          <div className="mt-6 flex justify-center items-center gap-3">
+            <span className="text-white/25 text-[10px] tracking-[0.2em] uppercase font-medium">Loading cinematic database</span>
             <div className="flex gap-1.5">
-              <div className="w-2 h-2 bg-[#1111d4] rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-              <div className="w-2 h-2 bg-[#1111d4] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-              <div className="w-2 h-2 bg-[#1111d4] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+              <div className="w-1.5 h-1.5 bg-[#1111d4]/80 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+              <div className="w-1.5 h-1.5 bg-[#1111d4]/80 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+              <div className="w-1.5 h-1.5 bg-[#1111d4]/80 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
             </div>
           </div>
         </div>
       </main>
 
-      {/* Gradient overlays */}
+      {/* Gradient vignette */}
       <div className="fixed inset-0 pointer-events-none z-50">
-        <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-[#101022]/50 to-transparent" />
-        <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#101022]/50 to-transparent" />
+        <div className="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-[#0a0a0f]/60 to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#0a0a0f]/60 to-transparent" />
       </div>
     </div>
   );
