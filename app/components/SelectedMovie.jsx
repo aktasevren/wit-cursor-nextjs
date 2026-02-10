@@ -209,131 +209,67 @@ const DID_YOU_KNOW_CARD = {
   year: 'Filmed in 1976',
 };
 
-// Location Loading Component — sinematik yükleme ekranı, sağ üstte Locations widget
+// Location Loading — kırmızı sinema perdesi açılır, yükleme çubuğu
 const LocationLoading = ({
   title,
   noLocations,
   redirectCountdown,
+  geocodeProgress,
 }) => {
-  const bgImageUrl = 'https://lh3.googleusercontent.com/aida-public/AB6AXuBx_D7M73P067zYOZ6dSXZhl_4120cP67VXWpJznmdOpc6dgj2mwdFq7Gbt5c2F38VQT4Fc6wzI0M4Qg0V8yuuvHzkeqAPGApA1i4sGsPOUn-nhiemUB70vp2NOp2Fw-mTYswi97TNtMV_dQ6orDkIW36wYvSKQzMBRYAynEG28LaQ97RROD5jsZrNO3ijyJaKUijiLwZenEdqYQnVH_G9PMu86AntpOg-4koCTLc0NwcDPkiXPUmAIoRwIsjbh6FTU0vtNamlY0jcw';
+  const total = geocodeProgress?.total ?? 0;
+  const processed = geocodeProgress?.processed ?? 0;
+  const found = geocodeProgress?.found ?? 0;
+  const hasProgress = total > 0;
+  const progressPercent = hasProgress ? Math.min(100, Math.round((processed / total) * 100)) : 0;
 
   return (
-    <div className="fixed inset-0 z-0 bg-[#0a0a0f] overflow-auto location-loading-screen">
-      {/* Cinematic background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f]/70 via-[#0a0a0f]/90 to-[#0a0a0f] z-10" />
-        <div
-          className="w-full h-full bg-center bg-no-repeat bg-cover scale-105 blur-xl opacity-30"
-          style={{ backgroundImage: `url("${bgImageUrl}")` }}
-          aria-hidden
-        />
-        <div className="absolute inset-0 z-20 location-loading-grain" aria-hidden />
+    <div className="fixed inset-0 z-0 bg-[#0c0c0f] overflow-hidden location-loading-screen" aria-busy="true" aria-label="Loading filming locations">
+      {/* Kırmızı sinema perdeleri — ortadan açılır */}
+      <div className="curtains fixed inset-0 z-30 flex pointer-events-none">
+        <div className="curtain curtain-left" aria-hidden />
+        <div className="curtain curtain-right" aria-hidden />
       </div>
 
-      {/* Sağ üst: Locations widget — ilgi çekici */}
-      {!noLocations && (
-        <div className="fixed top-24 right-6 sm:right-8 lg:right-12 z-30 location-loading-widget">
-          <div className="flex items-center gap-3 bg-black/60 backdrop-blur-xl border border-white/15 rounded-2xl px-5 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.05)]">
-            <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-[#1111d4]/30 border border-[#1111d4]/50">
-              <IconLocationOn size={26} className="text-[#1111d4]" />
-              <span className="absolute inset-0 rounded-xl border border-[#1111d4]/40 animate-ping opacity-25" aria-hidden />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Locations</p>
-              <p className="text-sm font-semibold text-white mt-0.5">Geocoding...</p>
-              <div className="flex gap-1 mt-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#1111d4] animate-loading-dot" style={{ animationDelay: '0s' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-[#1111d4] animate-loading-dot" style={{ animationDelay: '0.2s' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-[#1111d4] animate-loading-dot" style={{ animationDelay: '0.4s' }} />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <main className="relative z-20 flex flex-col min-h-screen w-full px-6 sm:px-8 lg:px-12 pt-28 pb-8">
-        {/* Orta: sinematik başlık + ikon */}
-        <div className="flex-1 flex flex-col items-center justify-center min-h-[260px] py-12 sm:py-16">
-          <div className="flex flex-col items-center gap-12 sm:gap-14 max-w-2xl text-center">
-            <div className="relative location-loading-icon-wrap">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-36 h-36 sm:w-44 sm:h-44 border border-[#1111d4]/25 rounded-full animate-pulse" />
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 border-2 border-[#1111d4]/35 rounded-full animate-ping opacity-60" />
-              </div>
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-[#1111d4]/15 border border-[#1111d4]/50 rounded-full flex items-center justify-center location-loading-icon-inner">
-                <IconLocationOn size={44} className="text-[#1111d4] sm:w-12 sm:h-12" />
-              </div>
-            </div>
-            <div className="space-y-4">
-              {noLocations ? (
-                <>
-                  <h1 className="location-loading-title text-white text-2xl sm:text-3xl md:text-4xl font-semibold tracking-wide px-2">
-                    No filming locations found
+      {/* Perde arkası: karanlık sahne + yükleme içeriği */}
+      <div className="relative z-20 flex flex-col min-h-screen items-center justify-center px-6 py-24">
+        <div className="curtain-content w-full max-w-md flex flex-col items-center gap-10 text-center">
+          {noLocations ? (
+            <>
+              <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-wide">
+                No filming locations found
+              </h1>
+              <p className="text-white/60 text-sm">
+                Redirecting in {redirectCountdown ?? 5} second{(redirectCountdown ?? 5) === 1 ? '' : 's'}…
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="flex flex-col items-center gap-5 curtain-loading-text w-full max-w-sm">
+                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/50">
+                  Loading filming locations
+                </p>
+                {title && (
+                  <h1 className="text-xl sm:text-2xl font-semibold text-white leading-tight text-center line-clamp-3 px-1" title={title}>
+                    {title}
                   </h1>
-                  <p className="text-white/60 text-sm sm:text-base font-medium px-2">
-                    Redirecting in {redirectCountdown ?? 5} second{(redirectCountdown ?? 5) === 1 ? '' : 's'}…
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h1 className="location-loading-title text-white text-2xl sm:text-3xl md:text-4xl font-semibold tracking-[0.12em] px-2">
-                    Mapping the Galaxy...
-                  </h1>
-                  <p className="text-white/50 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-                    Geocoding filming locations for <span className="text-white/90">{title || 'this film'}</span>
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Did You Know kartı */}
-        <div className="w-full max-w-3xl mx-auto mt-8 sm:mt-12 flex-shrink-0">
-          <div className="blur-backdrop bg-white/[0.04] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl flex flex-col md:flex-row gap-8 items-start">
-            <div className="w-full md:w-56 lg:w-64 aspect-video rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
-              <div
-                className="w-full h-full bg-center bg-no-repeat bg-cover transform hover:scale-105 transition-transform duration-500"
-                style={{ backgroundImage: `url("${DID_YOU_KNOW_CARD.imageUrl}")` }}
-                aria-hidden
-              />
-            </div>
-            <div className="flex flex-col gap-3 min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <IconLightbulb size={20} className="text-[#1111d4] flex-shrink-0" />
-                <span className="text-[#1111d4] font-bold text-xs uppercase tracking-widest">Did You Know?</span>
+                )}
               </div>
-              <h3 className="text-white text-lg font-bold leading-snug">{DID_YOU_KNOW_CARD.title}</h3>
-              <p className="text-white/55 text-sm leading-relaxed">{DID_YOU_KNOW_CARD.body}</p>
-              <div className="mt-1 flex flex-wrap items-center gap-5">
-                <div className="flex items-center gap-2 text-xs text-white/40">
-                  <IconMap size={14} className="flex-shrink-0" />
-                  <span>{DID_YOU_KNOW_CARD.location}</span>
+              <div className="w-full space-y-1.5">
+                <div className="curtain-progress-track">
+                  <div
+                    className={`curtain-progress-bar ${!hasProgress ? 'curtain-progress-bar--indeterminate' : ''}`}
+                    style={hasProgress ? { width: `${progressPercent}%` } : undefined}
+                  />
                 </div>
-                <div className="flex items-center gap-2 text-xs text-white/40">
-                  <IconSchedule size={14} className="flex-shrink-0" />
-                  <span>{DID_YOU_KNOW_CARD.year}</span>
-                </div>
+                {hasProgress && (
+                  <p className="text-[11px] text-white/40">
+                    {found} location{found !== 1 ? 's' : ''} found
+                  </p>
+                )}
               </div>
-            </div>
-          </div>
-          <div className="mt-6 flex justify-center items-center gap-3">
-            <span className="text-white/25 text-[10px] tracking-[0.2em] uppercase font-medium">Loading cinematic database</span>
-            <div className="flex gap-1.5">
-              <div className="w-1.5 h-1.5 bg-[#1111d4]/80 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-              <div className="w-1.5 h-1.5 bg-[#1111d4]/80 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
-              <div className="w-1.5 h-1.5 bg-[#1111d4]/80 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
-            </div>
-          </div>
+            </>
+          )}
         </div>
-      </main>
-
-      {/* Gradient vignette */}
-      <div className="fixed inset-0 pointer-events-none z-50">
-        <div className="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-[#0a0a0f]/60 to-transparent" />
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#0a0a0f]/60 to-transparent" />
       </div>
     </div>
   );
@@ -445,80 +381,86 @@ function SelectedMovie({ onLoadingChange }) {
           title={movieDetails?.title || movieDetails?.original_title || 'Filming Locations'}
           noLocations={showMap && noLocations}
           redirectCountdown={redirectCountdown}
+          geocodeProgress={geocodeProgress}
         />
       ) : (
-        <div className="map-screen flex flex-1 min-h-0 w-full self-stretch">
-          {/* Sidebar: yükseklik içeriğe göre; liste uzadıkça sayfa scroll eder */}
-          <aside className="map-screen-sidebar map-screen-sidebar--desktop flex flex-col w-full max-w-[380px] flex-shrink-0">
-            <div className="map-screen-featured p-8 border-b border-white/5">
-              <div className="flex items-center gap-2 mb-6">
-                <IconMovieFilter className="text-primary" size={20} />
-                <span className="text-xs uppercase tracking-widest font-semibold text-primary/80">Cinematic Explorer</span>
+        <>
+          {/* Film bilgisi: topbar altında, harita alanının üstünde (akışta, harita içinde değil) */}
+          <div className="map-screen-film-bar">
+            <div className="map-screen-film-bar-inner">
+              <div className="map-screen-film-bar-poster">
+                {movieDetails?.poster_url ? (
+                  <img src={movieDetails.poster_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="map-screen-film-bar-poster-placeholder">
+                    <IconMovieFilter size={28} className="text-white/30" />
+                    <span className="map-screen-film-bar-poster-placeholder-text">Film</span>
+                  </div>
+                )}
               </div>
-              <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-white mb-4 tracking-tight">
-                {movieDetails?.title || movieDetails?.original_title || 'Filming Locations'}
-              </h1>
-              <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary text-white text-sm font-medium mb-6">
-                {[movieDetails?.wikidataMeta?.year, movieDetails?.wikidataMeta?.duration].filter(Boolean).join(' • ') || '—'}
-              </div>
-              <div className="pl-4 border-l-4 border-primary">
-                <p className="text-gray-400 text-sm leading-relaxed">
+              <div className="map-screen-film-bar-content">
+                <p className="map-screen-film-bar-label">Now exploring</p>
+                <h2 className="map-screen-film-bar-title">
+                  {movieDetails?.title || movieDetails?.original_title || 'Filming Locations'}
+                </h2>
+                <p className="map-screen-film-bar-meta">
+                  {[movieDetails?.wikidataMeta?.year, movieDetails?.wikidataMeta?.duration].filter(Boolean).join(' · ') || '—'}
+                </p>
+                <p className="map-screen-film-bar-desc">
                   {(movieDetails?.wikidataMeta?.description || movieDetails?.overview) || 'No description available.'}
                 </p>
               </div>
             </div>
+          </div>
 
-            <div className="map-screen-location-list flex flex-col">
-              <div className="map-screen-location-list-header px-4 sm:px-5 pt-4 pb-3 border-b border-white/5">
-                <div className="map-screen-location-list-title text-sm font-semibold uppercase tracking-wider text-white/90">
-                  Filming Locations <span className="text-primary/70 font-bold normal-case ml-1">({coordinates.length})</span>
+          <div className="map-screen flex flex-1 min-h-0 w-full self-stretch">
+          {/* Sidebar */}
+          <aside className="map-screen-sidebar map-screen-sidebar--desktop flex flex-col w-full max-w-[380px] flex-shrink-0">
+            <div className="map-screen-location-list flex flex-col flex-1 min-h-0">
+              <div className="map-screen-location-list-header">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/20 border border-primary/30">
+                    <IconLocationOn size={22} className="text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="map-screen-location-list-title">
+                      Filming Locations
+                    </h2>
+                    <p className="map-screen-location-list-subtitle">
+                      {coordinates.length} location{coordinates.length !== 1 ? 's' : ''} · Tap to focus on map
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-white/50 mt-1">Tap a location to focus on map</p>
               </div>
-              <div className="map-screen-location-list-inner px-3 sm:px-4 pb-6 space-y-3">
+              <div className="map-screen-location-list-inner">
                 {coordinates.map((loc, index) => {
-                  const locationLine = (loc.formatted || loc.place || 'Location').trim() || 'Location';
-                  const desc = loc.desc && loc.desc !== 'No description available' ? loc.desc : null;
+                  const address = (loc.formatted || loc.place || 'Location').trim() || 'Location';
+                  const sceneRaw = loc.desc && loc.desc !== 'No description available' ? loc.desc.trim() : null;
                   const isActive = flyToLocationIndex === index;
                   const numStr = String(index + 1).padStart(2, '0');
+                  const sameAsAddress = !sceneRaw || address === sceneRaw || sceneRaw === address || address.includes(sceneRaw) || sceneRaw.includes(address);
+                  const showTwoLines = sceneRaw && !sameAsAddress;
                   return (
                     <button
                       type="button"
                       key={`${loc.place}-${index}`}
-                      className={`map-screen-location-card group cursor-pointer w-full text-left rounded-xl border transition-all duration-200 flex gap-3 p-3 sm:p-3.5 touch-manipulation relative overflow-hidden ${
-                        isActive
-                          ? 'bg-primary/20 border-primary active-card-glow'
-                          : 'bg-white/5 border-white/10 hover:border-primary/50 active:bg-primary/10'
-                      }`}
+                      className={`map-screen-location-card ${isActive ? 'map-screen-location-card--active' : ''}`}
                       onClick={() => setFlyToLocationIndex(index)}
                     >
-                      {isActive && <div className="absolute inset-0 bg-primary/5" aria-hidden />}
-                      <span
-                        className={`relative z-10 flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold border transition-colors map-screen-location-num ${
-                          isActive
-                            ? 'bg-primary border-primary text-white shadow-md'
-                            : 'bg-amber-500/20 border-amber-500/50 text-amber-400 group-hover:bg-amber-500/30 group-hover:border-amber-400/60'
-                        }`}
-                        aria-hidden
-                      >
+                      <span className="map-screen-location-num" aria-hidden>
                         {numStr}
                       </span>
-                      <div className="relative z-10 flex-1 min-w-0 flex flex-col gap-0.5">
-                        <span className="text-sm font-semibold text-white leading-snug line-clamp-2">
-                          {locationLine}
-                        </span>
-                        {desc && (
-                          <p className="text-xs italic text-amber-accent/80 leading-snug line-clamp-2">
-                            {desc}
-                          </p>
+                      <div className="map-screen-location-content">
+                        {showTwoLines && (
+                          <span className="map-screen-location-scene">{sceneRaw}</span>
                         )}
+                        <span className="map-screen-location-address">{address}</span>
                       </div>
                     </button>
                   );
                 })}
               </div>
             </div>
-
           </aside>
 
           {/* Harita: mobilde tam ekran, masaüstünde sidebar yanında */}
@@ -616,37 +558,28 @@ function SelectedMovie({ onLoadingChange }) {
               </MapContainer>
                 </div>
 
-                {/* Overlay ve kontroller: sadece masaüstünde (mobilde sadece harita) */}
+                {/* Overlay: sol tarafta gradient */}
                 <div className="map-screen-overlays absolute inset-0 z-[1100] pointer-events-none hidden md:block">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/35 to-transparent" />
                 </div>
-                <div className="map-screen-controls absolute top-6 left-1/2 -translate-x-1/2 z-[1101] hidden md:block">
-                  <div className="glass-pill rounded-full px-6 py-3 flex items-center gap-6 shadow-2xl">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden />
-                      <span className="text-sm font-medium tracking-wide text-white/90">
-                        Exploring: <span className="text-white font-semibold">{movieDetails?.title || movieDetails?.original_title || 'Filming Locations'}</span>
-                      </span>
+                {/* Sağ üst: Reset Map + Database Status */}
+                <div className="absolute top-6 right-6 z-[1101] hidden md:flex items-center gap-3">
+                  <button
+                    type="button"
+                    className="glass-pill rounded-full px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-primary transition-colors pointer-events-auto"
+                    onClick={() => setMapResetTrigger((t) => t + 1)}
+                  >
+                    <IconRefresh size={18} />
+                    Reset Map
+                  </button>
+                  {locationsSource && (
+                    <div className="glass-pill px-3 py-2 rounded-full flex items-center gap-2">
+                      <span className="text-[10px] uppercase font-bold tracking-tighter text-white/40">Source</span>
+                      <span className="text-[10px] uppercase font-bold tracking-tighter text-primary">{locationsSource === 'db' ? 'DB' : 'Web'}</span>
                     </div>
-                    <div className="h-4 w-px bg-white/20" aria-hidden />
-                    <button
-                      type="button"
-                      className="flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-primary transition-colors pointer-events-auto"
-                      onClick={() => setMapResetTrigger((t) => t + 1)}
-                    >
-                      <IconRefresh size={18} />
-                      Reset Map
-                    </button>
-                  </div>
+                  )}
                 </div>
-                {/* Database Status badge (mockup: glass-pill) */}
-                {locationsSource && (
-                  <div className="map-screen-source absolute top-6 right-6 z-[1101] glass-pill px-4 py-2 rounded-full flex items-center gap-2 hidden md:flex">
-                    <span className="text-[10px] uppercase font-bold tracking-tighter text-white/40">Database Status</span>
-                    <span className="text-[10px] uppercase font-bold tracking-tighter text-primary">Source: {locationsSource === 'db' ? 'DB' : 'Web'}</span>
-                  </div>
-                )}
-                <div className="map-screen-legend absolute top-6 left-6 z-[1101] glass-pill px-4 py-4 rounded-xl flex flex-col gap-3 hidden md:flex">
+                <div className="map-screen-legend absolute bottom-6 left-6 z-[1101] glass-pill px-4 py-4 rounded-xl flex flex-col gap-3 hidden md:flex">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-primary pin-glow" aria-hidden />
                     <span className="text-xs font-medium text-white/80">Filmed Here</span>
@@ -659,7 +592,8 @@ function SelectedMovie({ onLoadingChange }) {
               </div>
             </div>
           </section>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

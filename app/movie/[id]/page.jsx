@@ -56,24 +56,7 @@ export default function MoviePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
-      <AppHeader
-        rightContent={
-          isLoading ? (
-            <div className="hidden md:flex flex-col items-end gap-2">
-              <p className="text-[#1111d4] font-bold text-xs uppercase tracking-[0.2em]">
-                {geocodeProgress?.status === 'running' && (geocodeProgress?.found ?? 0) > 0
-                  ? `${geocodeProgress.found} location${geocodeProgress.found !== 1 ? 's' : ''} found, processing…`
-                  : movieInfos?.length > 0
-                    ? `${movieInfos.length} location${movieInfos.length !== 1 ? 's' : ''} — loading map…`
-                    : 'Synchronizing Data'}
-              </p>
-              <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-[#1111d4] w-2/3 shadow-[0_0_10px_rgba(17,17,212,0.8)]" />
-              </div>
-            </div>
-          ) : null
-        }
-      />
+      <AppHeader />
       {/* pt-24 (6rem) header için; main yüksekliği içeriğe göre (harita ~380vh) — flex:1 yok ki büyüsün */}
       <main className="pt-24 flex flex-col min-h-0 flex-shrink-0">
         <SelectedMovie onLoadingChange={setIsLoading} />

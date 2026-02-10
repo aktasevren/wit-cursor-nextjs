@@ -38,25 +38,25 @@
   letter-spacing: 0.12em;
 }
 
-/* Logo + başlık: tüm sayfalarda aynı — sinematik (Cinzel), geniş harf aralığı, renkli harfler */
-/* Yüksek özgüllük: .home-page * ile ezilmesin (ana sayfa da dahil her yerde aynı görünsün) */
+/* Logo + başlık: "Discover where the magic happened." ile aynı font (Space Grotesk) */
 header .site-logo-title,
 header .site-logo-title *,
 .site-logo-title,
 .site-logo-title * {
-  font-family: "Cinzel", serif !important;
+  font-family: "Space Grotesk", sans-serif !important;
 }
+/* Hero "Discover where the magic happened." ile aynı stil: gradient, biraz daha küçük, tamamı büyük harf */
 .site-logo-title-text {
-  font-size: 1.6875rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.32em !important;
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.28em !important;
   line-height: 1.2 !important;
-  display: inline-flex;
-  flex-wrap: nowrap;
-}
-.site-logo-title-char {
-  display: inline-block;
-  -webkit-font-smoothing: antialiased;
+  text-transform: uppercase !important;
+  color: #fff !important;
+  background: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0.6)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
 }
 
 /* Homepage: sinematik kayan yazı (marquee) — trending & recent */
@@ -148,57 +148,123 @@ header .site-logo-title *,
   background-color: rgba(255, 255, 255, 0.03);
 }
 
-/* Location Loading Screen — sinematik yükleme ekranı */
-.location-loading-screen {
+/* Location Loading — kırmızı sinema perdesi açılır + yükleme çubuğu */
+.location-loading-screen,
+.location-loading-screen .curtain-loading-text {
   font-family: "Space Grotesk", sans-serif;
 }
-.location-loading-title {
-  font-family: "Cinzel", serif !important;
-  letter-spacing: 0.08em;
+
+.curtains {
+  transition: opacity 0.5s ease 0.1s;
 }
-.location-loading-grain {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+.curtain {
+  width: 50%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  box-shadow:
+    0 0 60px rgba(0, 0, 0, 0.5),
+    inset -2px 0 20px rgba(0, 0, 0, 0.25);
+}
+/* Kumaş hissi: dikey şeritler (perde kıvrımları) */
+.curtain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 12px,
+    rgba(0, 0, 0, 0.12) 12px,
+    rgba(0, 0, 0, 0.12) 14px
+  );
   pointer-events: none;
-  mix-blend-mode: overlay;
 }
-.location-loading-widget {
-  animation: location-widget-in 0.5s ease-out;
+.curtain-left {
+  left: 0;
+  background:
+    linear-gradient(105deg, rgba(0,0,0,0.15) 0%, transparent 18%),
+    linear-gradient(180deg, #a80a0a 0%, #8b0000 15%, #700 35%, #5c0000 50%, #700 65%, #8b0000 85%, #a80a0a 100%);
+  animation: curtain-open-left 2.4s cubic-bezier(0.33, 0, 0.2, 1) forwards;
 }
-@keyframes location-widget-in {
+.curtain-left::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5) 30%, rgba(218, 165, 32, 0.85) 50%, rgba(212, 175, 55, 0.5) 70%, transparent);
+  box-shadow: 2px 0 12px rgba(218, 165, 32, 0.3);
+  pointer-events: none;
+}
+.curtain-right {
+  right: 0;
+  background:
+    linear-gradient(75deg, rgba(0,0,0,0.15) 0%, transparent 18%),
+    linear-gradient(180deg, #a80a0a 0%, #8b0000 15%, #700 35%, #5c0000 50%, #700 65%, #8b0000 85%, #a80a0a 100%);
+  animation: curtain-open-right 2.4s cubic-bezier(0.33, 0, 0.2, 1) forwards;
+}
+.curtain-right::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5) 30%, rgba(218, 165, 32, 0.85) 50%, rgba(212, 175, 55, 0.5) 70%, transparent);
+  box-shadow: -2px 0 12px rgba(218, 165, 32, 0.3);
+  pointer-events: none;
+}
+@keyframes curtain-open-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+@keyframes curtain-open-right {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+.curtain-content {
+  animation: curtain-content-in 0.9s ease-out 1.4s both;
+}
+@keyframes curtain-content-in {
   from {
     opacity: 0;
-    transform: translateY(-8px) translateX(8px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) translateX(0);
+    transform: translateY(0);
   }
 }
-.location-loading-icon-wrap {
-  width: 10rem;
-  height: 10rem;
+
+.curtain-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
 }
-@media (min-width: 640px) {
-  .location-loading-icon-wrap {
-    width: 12rem;
-    height: 12rem;
+.curtain-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+  transition: width 0.4s ease-out;
+}
+.curtain-progress-bar--indeterminate {
+  width: 42% !important;
+  animation: curtain-progress-indeterminate 1.6s ease-in-out infinite;
+}
+@keyframes curtain-progress-indeterminate {
+  0%, 100% {
+    transform: translateX(-100%);
   }
-}
-.location-loading-icon-inner {
-  box-shadow: 0 0 24px rgba(17, 17, 212, 0.25), inset 0 0 20px rgba(17, 17, 212, 0.08);
-}
-@keyframes loading-dot {
-  0%, 80%, 100% {
-    opacity: 0.4;
-    transform: scale(0.9);
+  50% {
+    transform: translateX(230%);
   }
-  40% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-.animate-loading-dot {
-  animation: loading-dot 1.2s ease-in-out infinite;
 }
 
 /* Loading screen (tasarım birebir) */
@@ -503,6 +569,105 @@ body {
   min-height: 100vh;
 }
 
+/* Film bilgisi: topbar altında, harita alanının üstünde (akışta) */
+.map-screen-film-bar {
+  width: 100%;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, rgba(10, 10, 20, 0.98) 0%, rgba(8, 8, 18, 0.95) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1rem 1.5rem;
+}
+.map-screen-film-bar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.map-screen-film-bar-poster {
+  flex-shrink: 0;
+  width: 64px;
+  height: 96px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.map-screen-film-bar-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.map-screen-film-bar-poster-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background: linear-gradient(145deg, rgba(17, 17, 212, 0.15) 0%, rgba(10, 10, 25, 0.9) 100%);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+.map-screen-film-bar-poster-placeholder-text {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.35);
+}
+.map-screen-film-bar-content {
+  flex: 1;
+  min-width: 0;
+}
+.map-screen-film-bar-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(17, 17, 212, 0.9);
+  margin: 0 0 0.2rem;
+}
+.map-screen-film-bar-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  margin: 0 0 0.25rem;
+  letter-spacing: 0.01em;
+}
+.map-screen-film-bar-meta {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 0.3rem;
+}
+.map-screen-film-bar-desc {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .map-screen-film-bar {
+    padding: 1rem 2rem;
+  }
+  .map-screen-film-bar-inner {
+    gap: 1.25rem;
+  }
+  .map-screen-film-bar-poster {
+    width: 76px;
+    height: 114px;
+  }
+  .map-screen-film-bar-title {
+    font-size: 1.125rem;
+  }
+}
+
 /* Liste: masaüstünde sayfa scroll'unda uzar (sticky harita); mobilde sidebar içinde kayar */
 .map-screen-sidebar .map-screen-location-list {
   flex: 0 1 auto;
@@ -514,24 +679,39 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* Lokasyon listesi: başlık alanı — net ve anlaşılır */
 .map-screen-location-list-header {
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 1rem 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
 }
-
-/* Global h2 (5.25rem !important) bu blokta uygulanmasın; başlık küçük kalsın */
-.map-screen-location-list-header .map-screen-location-list-title {
-  font-size: 0.875rem !important;
-  line-height: 1.25;
+.map-screen-location-list-title {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  margin: 0;
+}
+.map-screen-location-list-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0.25rem 0 0;
+  font-weight: 500;
 }
 
 .map-screen-location-list-inner {
-  overflow-y: visible;
+  overflow-y: auto;
   min-height: 0;
+  padding: 0.75rem 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .map-screen-location-list-inner::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 
 .map-screen-location-list-inner::-webkit-scrollbar-track {
@@ -547,34 +727,95 @@ body {
   background: rgba(17, 17, 212, 0.4);
 }
 
-/* Kartlar: inline Tailwind + burada ek vurgu */
+/* Lokasyon kartı — sabit yükseklik, adres + sahne alt alta (farklıysa), düzenli görünüm */
 .map-screen-location-card {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: stretch;
+  gap: 0.875rem;
+  width: 100%;
+  min-height: 72px;
+  text-align: left;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  touch-action: manipulation;
+  overflow: hidden;
 }
-
-/* Sol taraftaki numara rozeti (01, 02): buton görünümü, amber arka plan */
-.map-screen-location-num {
-  font-size: 0.75rem !important;
-  line-height: 1;
-  min-width: 2.25rem;
-  min-height: 2.25rem;
+.map-screen-location-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
 }
-
+.map-screen-location-card--active {
+  background: rgba(17, 17, 212, 0.12);
+  border-color: rgba(17, 17, 212, 0.45);
+  box-shadow: 0 0 0 1px rgba(17, 17, 212, 0.15), 0 4px 16px rgba(17, 17, 212, 0.12);
+}
 .map-screen-location-card:active {
   transform: scale(0.99);
 }
 
-@media (min-width: 769px) {
-  .map-screen-location-card:hover {
-    box-shadow: 0 4px 12px rgba(17, 17, 212, 0.15);
-  }
+.map-screen-location-num {
+  flex-shrink: 0;
+  width: 40px;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.2s, color 0.2s;
+}
+.map-screen-location-card--active .map-screen-location-num {
+  background: rgba(17, 17, 212, 0.25);
+  color: #fff;
+  border-right-color: rgba(17, 17, 212, 0.3);
 }
 
-/* Featured Production: belirgin film alanı */
-.map-screen-featured {
-  background: linear-gradient(180deg, rgba(17, 17, 212, 0.08) 0%, rgba(10, 10, 10, 0.6) 100%);
-  border-bottom: 1px solid rgba(17, 17, 212, 0.2);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(17, 17, 212, 0.06);
+.map-screen-location-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem 0.75rem 0;
+}
+/* Üst satır: sahne / tip — daha belirgin (canyon, final scene: ..., village) */
+.map-screen-location-scene {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  order: 1;
+}
+.map-screen-location-card--active .map-screen-location-scene {
+  color: rgba(255, 255, 255, 0.95);
+}
+/* Alt satır: adres — daha az belirgin */
+.map-screen-location-address {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  order: 2;
+}
+.map-screen-location-card--active .map-screen-location-address {
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* Harita sütunu: stretch ile sidebar kadar yüksek; içinde sticky harita */
@@ -680,10 +921,6 @@ body {
     flex-direction: column;
     z-index: 2;
     position: relative;
-  }
-
-  .map-screen-sidebar--desktop .map-screen-featured {
-    flex-shrink: 0;
   }
 
   .map-screen-sidebar--desktop .map-screen-location-list {
