@@ -75,6 +75,18 @@ export default function Footer() {
             <p className="text-white/60 text-sm max-w-xs">
               Discover where movies and TV shows were filmed. Explore real filming locations around the world.
             </p>
+            <nav className="mt-4" aria-label="Site links">
+              <ul className="space-y-1 text-sm">
+                <li>
+                  <Link
+                    href="/blog"
+                    className="text-white/60 hover:text-primary transition-colors"
+                  >
+                    Film Locations Blog
+                  </Link>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
         <div className="py-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">

@@ -7,10 +7,6 @@ import { useRouter } from 'next/navigation';
 import L from 'leaflet';
 import {
   IconLocationOn,
-  IconLightbulb,
-  IconMap,
-  IconSchedule,
-  IconNorthEast,
   IconRefresh,
   IconMovieFilter,
 } from '@/app/components/Icons';

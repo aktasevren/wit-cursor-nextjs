@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { connect } from '@/lib/db/mongo';
 import SearchRecord from '@/lib/db/SearchRecord';
 import { encodeMovieId } from '@/lib/movieId';
+import { getAllBlogPosts } from '@/app/blog/posts';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://wherewasfilmed.com';
 const MAX_MOVIE_ENTRIES = 500;
@@ -19,6 +20,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
+    },
+    {
+      url: `${siteUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
     },
   ];
 
@@ -40,7 +47,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...base, ...movieEntries];
+    const blogPosts = getAllBlogPosts();
+    const blogEntries = blogPosts.map((post) => ({
+      url: `${siteUrl}/blog/${post.slug}`,
+      lastModified: new Date(post.date),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
+
+    return [...base, ...movieEntries, ...blogEntries];
   } catch {
     return base;
   }
